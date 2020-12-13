@@ -90,20 +90,52 @@ subplot(1,2,2);
 imshow(uint8(rimg))
 
 ##Ejercicio 3
-h1 = [962.17 3480 1];h2 = [1317.91 3357.5 1];
-h3 = [1113 3731.2 1];h4 = [1476.26 3572.9 1];
-v1 = [1300.07 3398.9 1];v2 = [1492.99 3456.9 1];
-v3 = [1354.71 3391.15 1];v4 = [1514.18 3438.0 1];
+
 I = imread ("Esquina2.jpg");
-points = [h1; h2; h3; h4; v1; v2; v3; v4];
+
+h1 = [962.17 3480 1]; h2 = [1317.91 3357.5 1];
+h3 = [1113 3731.2 1]; h4 = [1476.26 3572.9 1];
+
+v1 = [1300.07 3398.9 1]; v2 = [1492.99 3456.9 1];
+v3 = [1354.71 3391.15 1]; v4 = [1514.18 3438.0 1];
+
 rh1 = cross(h1,h2); # Recta que pasa por h1 y h2
-imshow(I)
-hold on
-plot(points'(1,:), points'(2,:),'o')
-hold on
-plot(x,(-rh1(1)*x-rh1(3))/rh1(2),'b')
-xlim([0,a]);
-ylim([0,b])
+rh2 = cross(h3,h4); # Recta que pasa por h3 y h4
+ph = cross(rh1,rh2);
+
+rv1 = cross(v1,v2); # Recta que pasa por v1 y v2
+rv2 = cross(v3,v4); # Recta que pasa por v3 y v4
+pv = cross(rv1, rv2);
+
+% t1 punto arriba edificio 
+% t2 punto arriba señor
+% b1 punto abajo edificio 
+% b2 punto abajo señor
+% v producto cruzado de las rectas  que unen al señor y al edificio
+% l distancia entre los puntos de fuga que forman la acera y las líneas
+
+b1 = [3343.5 1366.4 1]; t1 = [450.71 1346.1 1];
+b2 = [1536.7 3312.5 1]; t2 = [1535.2 3118.4 1];
+
+v = cross(cross(b1,t1),cross(b2,t2));
+
+l = cross(ph,pv);
+
+u = cross(cross(b1,b2),l);
+
+l_2 = cross(v, b2);
+
+tn1 = cross(cross(t1,u),l_2);
+
+d2 = 175;
+
+d1 = (dot(tn1,(t1 - v)) / dot(t2, (tn1 - v)))* (d2)
+
+
+
+
+
+
 
 ##Ejercicio 4 -- Homografias
 img_centro = imread ("Berserk_centro.jfif");
@@ -282,3 +314,6 @@ P2=[];
 P3=[];
 P4=[];
 P5=[];
+
+
+
