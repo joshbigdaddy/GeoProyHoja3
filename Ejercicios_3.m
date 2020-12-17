@@ -138,97 +138,121 @@ d1 = (dot(tn1,(t1 - v)) / dot(t2, (tn1 - v)))* (d2)
 
 
 ##Ejercicio 4 -- Homografias
-img_centro = imread ("Berserk_centro.jfif");
-img_izda = imread ("Berserk_izquierda.jfif");
-img_dcha = imread ("Berserk_derecha.jfif");
+
+## 1. Cargamos las imagenes
+
+img_centro = imread ("Berserk_centro.png");
+img_izda = imread ("Berserk_izquierda.png");
+img_dcha = imread ("Berserk_derecha.png");
 
 
-subplot(1,3,1);
-hold on
-imshow(img_izda);
-subplot(1,3,2);
-imshow(img_centro);
-subplot(1,3,3);
-imshow(img_dcha);
+## 2. Ampliamos el tamaño de las imagenes
 
-##Tienen que ir del revés
+f = rows(img_centro);
+c = columns(img_centro);
+
+size(img_centro);
+
+img_centro = [zeros(f,c) img_centro zeros(f,c)];
+img_izda = [img_izda zeros(f,c) zeros(f,c)];
+img_dcha = [zeros(f,c) zeros(f,c) img_dcha];
+
+
+## 3. Obtenemos los puntos de referencia de las imagenes
+
 %puntos imagen centro
-punto_1 = [681 95];%marco interior izdo arriba
-punto_2 = [681 27];%marco exterior izdo arriba
-punto_3 = [1418 90];%marco interior izdo abajo
-punto_4 = [1418 14];%marco exterior izdo abajo
-%puntos imagen centro
-punto_3_dcha=[1421 1421]; %interior abajo
-punto_4_dcha=[1421 1488]; %exterior abajo
-punto_1_dcha=[678 1418]; %inter arriba
-punto_2_dcha=[678 1488]; %exter arriba
-puntos_centro_1 = [punto_1;punto_2;punto_3;punto_4];
-puntos_centro_2 = [punto_1_dcha;punto_2_dcha;punto_3_dcha;punto_4_dcha];
+C1_iz = [340 796]; %interior arriba
+C2_iz = [340 761]; %exterior arriba
+C3_iz = [710 795]; %interior abajo
+C4_iz = [710 760]; %exterior abajo
 
-%puntos imagen izda -- vamos a tomar de referencia los puntos de la izquierda, 
-%para que así concuerden origenes
-punto_1_iz = [717 873];%int arriba
-punto_2_iz = [717 823];%ext arriba
-punto_3_iz = [1376 816];%int abajo
-punto_4_iz = [1374 764];%ext abajo
+C1_dcha=[337 1460]; %interior arriba
+C2_dcha=[337 1485]; %exterior arriba
+C3_dcha=[713 1461]; %interior abajo
+C4_dcha=[713 1494]; %exterior abajo
 
-puntos_izquierda = [punto_1_iz;punto_2_iz;punto_3_iz;punto_4_iz];
+C_IZ = [C1_iz;C2_iz;C3_iz;C4_iz];
+C_DCHA = [C1_dcha;C2_dcha;C3_dcha;C4_dcha];
 
-%puntos de la imagen de la dcha
-punto_1_dcha = [733 780];%int arriba
-punto_2_dcha = [738 832];%ext arriba
-punto_3_dcha = [1397 808];%int abajo
-punto_4_dcha = [1392 858];%ext abajo
+%puntos imagen derecha
+D1_dcha=[367 1889]; %interior arriba
+D2_dcha=[369 1917]; %exterior arriba
+D3_dcha=[697 1901]; %interior abajo
+D4_dcha=[691 1930]; %exterior abajo
 
-puntos_dcha= [punto_1_dcha;punto_2_dcha;punto_3_dcha;punto_4_dcha];
+D_DCHA = [D1_dcha;D2_dcha;D3_dcha;D4_dcha];
 
+%puntos imagen izquierda
+I1_iz = [360 442]; %interior arriba
+I2_iz = [360 414]; %exterior arriba
+I3_iz = [690 409]; %interior abajo
+I4_iz = [682 382]; %exterior abajo
 
-h_izda = getHomografia(puntos_centro_1,puntos_izquierda)
-h_dcha = getHomografia(puntos_centro_2,puntos_dcha)
+I_IZ = [I1_iz;I2_iz;I3_iz;I4_iz];
 
+## 4. Calculamos y aplicamos las homografías
 
+H_D = getHomografia(C_DCHA,D_DCHA);
+H_I = getHomografia(C_IZ, I_IZ);
+
+% IZQUIERDA
 f = rows(img_izda);
 c = columns(img_izda);
 
-rimg_izda = [];
+I_IMG = zeros(f,c);
 
 for i = 1:f
     for j = 1:c
-      r = h_izda * [i, j, 1]';
+      r = H_I * [i, j, 1]';
       r = r / r(end);
       x = round(r(1));
       y = round(r(2));
       if (x>0 && y>0 && x<=f && y<=c)
-        rimg_izda(i,j) = img_izda(x,y);
+        I_IMG(i,j) = img_izda(x,y);
       endif
     endfor
 endfor
 
 
+% DERECHA
 f = rows(img_dcha);
 c = columns(img_dcha);
 
-rimg_dcha= [];
+D_IMG = zeros(f,c);
 
 for i = 1:f
     for j = 1:c
-      r = h_dcha * [i, j, 1]';
+      r = H_D * [i, j, 1]';
       r = r / r(end);
       x = round(r(1));
       y = round(r(2));
       if (x>0 && y>0 && x<=f && y<=c)
-        rimg_dcha(i,j) = img_dcha(x,y);
+        D_IMG(i,j) = img_dcha(x,y);
       endif
     endfor
 endfor
 
-subplot(1,3,1);
-hold on
-imshow(uint8(rimg_izda));
-subplot(1,3,2);
-imshow(img_centro);
-subplot(1,3,3);
-imshow(uint8(rimg_dcha));
+
+## 4. Recorremos las imagenes para pintarlas en su posición
+
+f = rows(img_centro);
+c = columns(img_centro);
+
+for i = 1:f
+    for j = 1:c
+      if(img_centro(i,j) == 0)
+        if(j < c/2)
+          img_centro(i,j) = I_IMG(i,j);
+        else 
+          img_centro(i,j) = D_IMG(i,j);
+        endif
+      endif 
+    endfor
+endfor
+
+## 5. Pintamos la imagen resultante
+
+imshow(uint8(img_centro));
 
 ##EJ5
 
