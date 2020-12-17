@@ -98,6 +98,10 @@ h3 = [1113 3731.2 1]; h4 = [1476.26 3572.9 1];
 
 v1 = [1300.07 3398.9 1]; v2 = [1492.99 3456.9 1];
 v3 = [1354.71 3391.15 1]; v4 = [1514.18 3438.0 1];
+imshow(I);
+hold on;
+points = [h3;h4];
+plot(points'(1,:), points'(2,:),'o');
 
 rh1 = cross(h1,h2); # Recta que pasa por h1 y h2
 rh2 = cross(h3,h4); # Recta que pasa por h3 y h4
@@ -123,13 +127,17 @@ l = cross(ph,pv);
 
 u = cross(cross(b1,b2),l);
 
-l_2 = cross(v, b2);
+tn1 = cross(cross(t1,u),l_2)
 
-tn1 = cross(cross(t1,u),l_2);
+num_t1= norm(tn1-b2)
+num_t2= norm(t2-b2)
+num_v = norm(v-b2)
 
 d2 = 175;
-
-d1 = (dot(tn1,(t1 - v)) / dot(t2, (tn1 - v)))* (d2)
+##los vectores pasan a ser la norma del vector - b2 
+a1 = num_t1*(num_t2-num_v)
+a2=num_t2*(num_t1-num_v)
+d1 = d2 *(a1/a2)
 
 
 
